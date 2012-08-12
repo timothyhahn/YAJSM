@@ -24,7 +24,7 @@
             <manifest>
                     <attribute name="Main-Class" value="Game"/>
             </manifest>
-            <fileset dir="." includes="res/"/>
+            <fileset dir="src" includes="res/" excludes="*.psd"/>
         </jar>    
     </target>
     

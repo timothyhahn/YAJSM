@@ -1,0 +1,42 @@
+<project name="YAJSM" default ="dist" basedir=".">
+    <description>
+        Yet Another Java Swing Minesweeper
+    </description>
+    <property name="src" location="src" />
+    <property name="build" location="build" />
+    <property name="dist" location="dist" />
+    <property name="run" location="run" />
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init" description="compiles">
+         <javac srcdir="${src}" destdir="${build}"/>
+         <!-- <copy todir="${build}/res">
+            <fileset dir="res/" />
+            </copy> -->
+     </target>
+
+    <target name="dist" depends="compile" description="builds a distribution">
+        <mkdir dir="${dist}" />
+        <jar jarfile="${dist}/YAJSM-${DSTAMP}.jar" basedir="${build}">
+            <manifest>
+                    <attribute name="Main-Class" value="Game"/>
+            </manifest>
+            <fileset dir="." includes="res/"/>
+        </jar>    
+    </target>
+    
+    <target name="run" depends="dist" description="runs the jar">
+        <exec executable="java">
+            <arg value="-jar" />
+            <arg value="${dist}/YAJSM-${DSTAMP}.jar" />
+        </exec>
+    </target>
+    <target name="clean" description="...aaaand cleanup">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+</project>
+

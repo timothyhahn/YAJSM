@@ -126,8 +126,8 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		
 		pMines.setLayout(new GridLayout(10,10));
 		
-		ImageIcon icon = new ImageIcon("res/images/default/tiles.png", "A tile");
-
+		ImageIcon icon = new ImageIcon(getClass().getResource("res/images/default/tiles.png"), "A tile");
+		
 		for(int i = 0; i < 10; i++) {
 			for(int j = 0; j < 10; j++) {
 				JButton mine = new JButton(icon);
@@ -191,7 +191,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	public void mousePressed(MouseEvent e) {
 		Object o = e.getSource();
 		JButton b = (JButton) o;
-		ImageIcon icon = new ImageIcon("res/images/default/floor.png", "A floor");
+		ImageIcon icon = new ImageIcon(getClass().getResource("res/images/default/floor.png"), "A floor");
 		b.setIcon(icon);
 
 	}

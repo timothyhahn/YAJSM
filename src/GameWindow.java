@@ -173,6 +173,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		
 		JPanel pThemes = new JPanel(new GridLayout(0,1));
 		
+		rbDefault.setSelected(true);
 		pThemes.add(rbDefault);
 		pThemes.add(rbDark);
 		pThemes.add(rbUnicorn);

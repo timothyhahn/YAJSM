@@ -1,4 +1,4 @@
-<project name="YAJSM" default ="dist" basedir=".">
+<project name="YAJSM" default ="run" basedir=".">
     <description>
         Yet Another Java Swing Minesweeper
     </description>
@@ -34,6 +34,7 @@
             <arg value="${dist}/YAJSM-${DSTAMP}.jar" />
         </exec>
     </target>
+
     <target name="clean" description="...aaaand cleanup">
         <delete dir="${build}"/>
         <delete dir="${dist}"/>

@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URL;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -125,8 +126,14 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		pMines.setMaximumSize(new Dimension(250, 250));
 		
 		pMines.setLayout(new GridLayout(10,10));
-		
-		ImageIcon icon = new ImageIcon(getClass().getResource("res/images/default/tiles.png"), "A tile");
+		ImageIcon icon = null;
+		try{
+			URL uTiles = getClass().getResource("res/images/default/tiles.png");
+			if(uTiles != null) {
+				icon = new ImageIcon(uTiles, "A tile");
+			} else {
+				imagesMissing();
+			}
 		
 		for(int i = 0; i < 10; i++) {
 			for(int j = 0; j < 10; j++) {
@@ -137,6 +144,9 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			}
 		}
 		
+		} catch (NullPointerException npe) {
+			imagesMissing();
+		} 
 		for(int i = 0; i < 10; i++) {
 			for(int j = 0; j < 10; j++) {
 				mines[i][j].addMouseListener(this);
@@ -171,6 +181,12 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			dQuit.setVisible(false);
 		}
 	}
+	
+	public void imagesMissing() {
+		JOptionPane.showMessageDialog(this, "There are images missing from the directory. Please redownload the application");
+		System.exit(0);
+		
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -191,9 +207,18 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	public void mousePressed(MouseEvent e) {
 		Object o = e.getSource();
 		JButton b = (JButton) o;
-		ImageIcon icon = new ImageIcon(getClass().getResource("res/images/default/floor.png"), "A floor");
-		b.setIcon(icon);
-
+		try{
+			URL uFloor = getClass().getResource("res/images/default/floor.png");
+			if(uFloor != null) {
+				ImageIcon icon = new ImageIcon(uFloor, "A floor");
+				b.setIcon(icon);
+			} else {
+				imagesMissing();
+			}
+			
+		} catch (NullPointerException npe) {
+			imagesMissing();
+		} 
 	}
 
 	@Override

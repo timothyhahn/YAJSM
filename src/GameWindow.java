@@ -1,4 +1,4 @@
-import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -9,9 +9,9 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -22,11 +22,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
-import sun.awt.SunHints.Value;
+import javax.swing.Timer;
 
 
 public class GameWindow extends JFrame implements MouseListener, ActionListener{
@@ -34,11 +32,17 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     JButton mines[][] = new JButton[10][10];
     JPanel pMaster = null;
     JPanel pMines = null;
+    JTextField tfTime = null;
+    JTextField tfMines = null;
+    long time = 0;
+    int mineCount = 10;
+    Timer timer = null;
     
     String currentTheme = "default";
 	public void setUpLayout() {
 		setTitle("YAJSM - Yet Another Java Swing Minesweeper");
-		
+		  System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Test");
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		pMaster = new JPanel();
 		pMaster.setLayout(new BoxLayout(pMaster,BoxLayout.Y_AXIS));
 		setJMenuBar(setUpMenu());
@@ -46,19 +50,26 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		pMaster.add(setUpMines());
 		pMaster.add(setUpInfo());
 		add(pMaster);
+		
+		startTimer();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
+		setResizable(false);
 		setVisible(true);
 	}
 	public JPanel setUpStats() {
 		JPanel pStats = new JPanel();
 		pStats.setLayout(new GridLayout(2,2));
 		
-		JLabel lTime = new JLabel("Time: ");
-		JTextField tfTime = new JTextField("00");
+		JLabel lTime = new JLabel("Time");
+		lTime.setHorizontalAlignment(JLabel.CENTER);
+		tfTime = new JTextField(""+time);
 		tfTime.setEditable(false);
-		JLabel lMines = new JLabel("Mines: ");
-		JTextField tfMines = new JTextField("10");
+		tfTime.setHorizontalAlignment(JTextField.CENTER);
+		JLabel lMines = new JLabel("Mines");
+		lMines.setHorizontalAlignment(JLabel.CENTER);
+		tfMines = new JTextField(""+mineCount);
+		tfMines.setHorizontalAlignment(JTextField.CENTER);
 		tfMines.setEditable(false);
 		
 		pStats.add(lTime);
@@ -73,6 +84,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		lInfo.setPreferredSize(new Dimension(250,50));
 		lInfo.setLineWrap(true);
 		lInfo.setEditable(false);
+		lInfo.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
 		pInfo.add(lInfo);
 		
@@ -96,14 +108,17 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		JMenuItem miQuit = new JMenuItem("Quit");
 		miQuit.setMnemonic(KeyEvent.VK_Q);
 		miQuit.addActionListener(this);
-		
+		boolean isMacOS = System.getProperty("mrj.version") != null;
+	
 		gameMenu.add(miNewGame);
 		gameMenu.addSeparator();
 		gameMenu.add(miSettings);
 		gameMenu.add(miStats);
 		gameMenu.add(miThemes);
-		gameMenu.addSeparator();
-		gameMenu.add(miQuit);		
+		if(!isMacOS) {
+			gameMenu.addSeparator();
+			gameMenu.add(miQuit);		
+		}
 		menuBar.add(gameMenu);
 		
 		
@@ -114,6 +129,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		JMenuItem miRules = new JMenuItem("Rules");
 		miRules.setMnemonic(KeyEvent.VK_R);
 		JMenuItem miAbout = new JMenuItem("About");
+		miAbout.addActionListener(this);
 		miAbout.setMnemonic(KeyEvent.VK_A);
 		
 		helpMenu.add(miTutorial);
@@ -127,9 +143,11 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	
 	public JPanel setUpMines() {
 		pMines = new JPanel();
+		pMines.setMinimumSize(new Dimension(250,250));
 		pMines.setMaximumSize(new Dimension(250, 250));
 		
 		pMines.setLayout(new GridLayout(10,10));
+		pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		ImageIcon icon = null;
 		try{
 			URL uTiles = getClass().getResource("res/images/default/tile.png");
@@ -144,6 +162,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 				JButton mine = new JButton(icon);
 				mine.setContentAreaFilled(true);
 				mine.setPreferredSize(new Dimension(25,25));
+				
 				mines[i][j] = mine;
 				mines[i][j].addMouseListener(this);
 				pMines.add(mines[i][j]);
@@ -156,33 +175,28 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		return pMines;
 	}
 	
-	public void themeChooser() {
-		JFrame jfThemes = new JFrame("Themes");
-		
-		JRadioButton rbDefault = new JRadioButton("Default");
-		JRadioButton rbDark = new JRadioButton("Dark");
-		JRadioButton rbUnicorn = new JRadioButton("Unicorn");
-		rbDefault.addActionListener(this);
-		rbDark.addActionListener(this);
-		rbUnicorn.addActionListener(this);
-		
-		ButtonGroup bgThemes = new ButtonGroup();
-		bgThemes.add(rbDefault);
-		bgThemes.add(rbDark);
-		bgThemes.add(rbUnicorn);
-		
-		JPanel pThemes = new JPanel(new GridLayout(0,1));
-		
-		rbDefault.setSelected(true);
-		pThemes.add(rbDefault);
-		pThemes.add(rbDark);
-		pThemes.add(rbUnicorn);
-		
-		jfThemes.add(pThemes);
-		jfThemes.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		jfThemes.pack();
-		jfThemes.setVisible(true);
+	public void startTimer() {
+
+		int speed = 1000;
+		timer = new Timer(speed, this);
+		timer.start();
 	}
+	
+	public void aboutWindow() {
+		JFrame jfAbout = new JFrame("About");
+
+		JTextArea taAbout = new JTextArea("");
+
+		taAbout.setText("hi");
+		taAbout.setEditable(false);
+
+		jfAbout.add(taAbout);
+		jfAbout.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		jfAbout.pack();
+		jfAbout.setVisible(true);
+
+	}
+	
 	public void quitButtonAction() {
 		final JDialog dQuit = new JDialog(this,"Quit?", true);
 		final JOptionPane opQuit = new JOptionPane("Would you like to quit?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
@@ -235,7 +249,17 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		Object o = e.getSource();
 		JButton b = (JButton) o;
 		try{
-			URL uFloor = getClass().getResource("res/images/" + currentTheme + "/floor.png");
+
+		    Random randomGenerator = new Random();
+		    URL uFloor = null;
+			if(randomGenerator.nextInt(100) > 10) {
+				uFloor = getClass().getResource("res/images/" + currentTheme + "/floor.png");
+			} else {
+				uFloor = getClass().getResource("res/images/" + currentTheme + "/mine.png");
+				mineCount--;
+				tfMines.setText("" + mineCount);
+			}
+			
 			if(uFloor != null) {
 				ImageIcon icon = new ImageIcon(uFloor, "A floor");
 				b.setIcon(icon);
@@ -254,50 +278,23 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		if(arg0.getSource().getClass() == Timer.class){ 
+			time++;
+			tfTime.setText(""+time);
+		}
 		
 		if(arg0.getSource().getClass() == JMenuItem.class){
 			JMenuItem miToRead = (JMenuItem)arg0.getSource();
 			if(miToRead.getText().equals("Quit")) {
 				quitButtonAction();
 			} else if(miToRead.getText().equals("Themes")) {
-				themeChooser();
+				ThemesWindow themes = new ThemesWindow(this);
+				themes.display();
+			} else if(miToRead.getText().equals("About")) {
+				aboutWindow();
 			}
 		}
-		if(arg0.getSource().getClass() == JRadioButton.class) {
-			JRadioButton rbToRead = (JRadioButton)arg0.getSource();
-			if(rbToRead.getText().equals("Default")) {
-				currentTheme = "default";
-			} else if (rbToRead.getText().equals("Dark")){
-				currentTheme = "dark";
-			} else if (rbToRead.getText().equals("Unicorn")) {
-				currentTheme = "unicorn";
-			}
-			ImageIcon icon = new ImageIcon();
-			try{
-				URL uTiles = getClass().getResource("res/images/" + currentTheme + "/tile.png");
-				if(uTiles != null) {
-					icon = new ImageIcon(uTiles, "A tile");
-				} else {
-					imagesMissing();
-				}
-			pMines.removeAll();
-			for(int i = 0; i < 10; i++) {
-				for(int j = 0; j < 10; j++) {
-					JButton mine = new JButton(icon);
-					mine.setContentAreaFilled(true);
-					mine.setPreferredSize(new Dimension(25,25));
-					mines[i][j] = mine;
-					mines[i][j].addMouseListener(this);
-					pMines.add(mines[i][j]);
-				}
-			}
-			
-			} catch (NullPointerException npe) {
-				imagesMissing();
-			} 
-			invalidate();
-			validate();
-		}
+	
 		
 	}
 

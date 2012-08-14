@@ -22,7 +22,7 @@
         <mkdir dir="${dist}" />
         <jar jarfile="${dist}/YAJSM-${DSTAMP}.jar" basedir="${build}">
             <manifest>
-                    <attribute name="Main-Class" value="Game"/>
+                    <attribute name="Main-Class" value="YAJSM"/>
             </manifest>
             <fileset dir="src" includes="res/" excludes="*.psd"/>
         </jar>    

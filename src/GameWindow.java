@@ -42,6 +42,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     long time = 0;
     int mineCount = 10;
     Timer timer = null;
+    boolean first = true;
     
     String currentTheme = "default";
 	public void setUpLayout() {
@@ -254,7 +255,6 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		Object o = e.getSource();
 		JButton b = (JButton) o;
 		try{
-
 		    final Random randomGenerator = new Random();
 		    URL uFloor = null;
 			if(randomGenerator.nextInt(100) > 10) {
@@ -263,10 +263,12 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 					public void  run() {
 						try {
 							InputStream is = null;
-							if(randomGenerator.nextInt(10) > 5) {
-								 is = getClass().getResourceAsStream("res/audio/default/select1.mp3");
+							if(first) {
+								first = false;
+								 is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/select1.mp3");
 							} else {
-								 is = getClass().getResourceAsStream("res/audio/default/select2.mp3");
+								first = true;
+								 is = getClass().getResourceAsStream("res/audio/"+ currentTheme + "/select2.mp3");
 							}
 							Player pl = new Player(is);
 							pl.play();
@@ -285,7 +287,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
 					public void  run() {
 						try {
-							InputStream is = getClass().getResourceAsStream("res/audio/default/explode.mp3");
+							InputStream is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/explode.mp3");
 							Player pl = new Player(is);
 							pl.play();
 							
@@ -296,8 +298,6 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 						
 					}
 				});
-				System.out.println("mine!");
-				
 				mineCount--;
 				tfMines.setText("" + mineCount);
 			}

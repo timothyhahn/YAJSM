@@ -73,10 +73,10 @@ class ThemesWindow extends JFrame implements ActionListener {
 					gw.mines[i][j] = mine;
 					gw.mines[i][j].addMouseListener(gw);
 					gw.pMines.add(gw.mines[i][j]);
-					gw.pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
+				
 				}
 			}
-			
+			gw.pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			} catch (NullPointerException npe) {
 				gw.imagesMissing();
 			} 

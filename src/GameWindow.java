@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Random;
 
@@ -26,10 +27,14 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
+import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
+
 
 public class GameWindow extends JFrame implements MouseListener, ActionListener{
-
-    JButton mines[][] = new JButton[10][10];
+	int mineWidth = 30;
+	int mineHeight = 16;
+    JButton mines[][] = new JButton[mineWidth][mineHeight];
     JPanel pMaster = null;
     JPanel pMines = null;
     JTextField tfTime = null;
@@ -81,7 +86,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	public JPanel setUpInfo() {
 		JPanel pInfo = new JPanel();
 		JTextArea lInfo = new JTextArea("Here I will say belittling little facts about your ugly mother");
-		lInfo.setPreferredSize(new Dimension(250,50));
+		lInfo.setPreferredSize(new Dimension(25 * mineWidth,50));
 		lInfo.setLineWrap(true);
 		lInfo.setEditable(false);
 		lInfo.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -143,22 +148,22 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	
 	public JPanel setUpMines() {
 		pMines = new JPanel();
-		pMines.setMinimumSize(new Dimension(250,250));
-		pMines.setMaximumSize(new Dimension(250, 250));
+		pMines.setMinimumSize(new Dimension(25 * mineWidth,25 * mineHeight));
+		pMines.setMaximumSize(new Dimension(25 * mineWidth, 25 * mineHeight));
 		
-		pMines.setLayout(new GridLayout(10,10));
+		pMines.setLayout(new GridLayout(mineHeight,mineWidth));
 		pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		ImageIcon icon = null;
 		try{
-			URL uTiles = getClass().getResource("res/images/default/tile.png");
+			URL uTiles = getClass().getResource("res/images/"+ currentTheme +"/tile.png");
 			if(uTiles != null) {
 				icon = new ImageIcon(uTiles, "A tile");
 			} else {
 				imagesMissing();
 			}
 		
-		for(int i = 0; i < 10; i++) {
-			for(int j = 0; j < 10; j++) {
+		for(int i = 0; i < mineWidth; i++) {
+			for(int j = 0; j < mineHeight; j++) {
 				JButton mine = new JButton(icon);
 				mine.setContentAreaFilled(true);
 				mine.setPreferredSize(new Dimension(25,25));
@@ -250,12 +255,49 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		JButton b = (JButton) o;
 		try{
 
-		    Random randomGenerator = new Random();
+		    final Random randomGenerator = new Random();
 		    URL uFloor = null;
 			if(randomGenerator.nextInt(100) > 10) {
 				uFloor = getClass().getResource("res/images/" + currentTheme + "/floor.png");
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void  run() {
+						try {
+							InputStream is = null;
+							if(randomGenerator.nextInt(10) > 5) {
+								 is = getClass().getResourceAsStream("res/audio/default/select1.mp3");
+							} else {
+								 is = getClass().getResourceAsStream("res/audio/default/select2.mp3");
+							}
+							Player pl = new Player(is);
+							pl.play();
+							
+						} catch (JavaLayerException jle) {
+							// TODO Auto-generated catch block
+							jle.printStackTrace();
+						}
+						
+					}
+				});
+				
 			} else {
+				
 				uFloor = getClass().getResource("res/images/" + currentTheme + "/mine.png");
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void  run() {
+						try {
+							InputStream is = getClass().getResourceAsStream("res/audio/default/explode.mp3");
+							Player pl = new Player(is);
+							pl.play();
+							
+						} catch (JavaLayerException jle) {
+							// TODO Auto-generated catch block
+							jle.printStackTrace();
+						}
+						
+					}
+				});
+				System.out.println("mine!");
+				
 				mineCount--;
 				tfMines.setText("" + mineCount);
 			}

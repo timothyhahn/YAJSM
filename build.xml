@@ -13,9 +13,6 @@
 
     <target name="compile" depends="init" description="compiles">
          <javac srcdir="${src}" destdir="${build}"/>
-         <!-- <copy todir="${build}/res">
-            <fileset dir="res/" />
-            </copy> -->
      </target>
 
     <target name="dist" depends="compile" description="builds a distribution">
@@ -38,6 +35,7 @@
     <target name="clean" description="...aaaand cleanup">
         <delete dir="${build}"/>
         <delete dir="${dist}"/>
+    
     </target>
 </project>
 

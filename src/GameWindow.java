@@ -10,7 +10,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -37,6 +36,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     JTextField tfTime = null;
     JTextField tfMines = null;
     long time;
+    int minesLeft;
     Timer timer = null;
     boolean firstClick;
     boolean firstMove;
@@ -46,7 +46,8 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
     	mf.generateMines();
     	mf.generateNumbers();
-    	mf.display();
+    	minesLeft = mf.mineCount;
+    	//mf.display();
     	firstClick = true;
     	firstMove = true;
     	time = 0;
@@ -81,7 +82,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		tfTime.setHorizontalAlignment(JTextField.CENTER);
 		JLabel lMines = new JLabel("Mines");
 		lMines.setHorizontalAlignment(JLabel.CENTER);
-		tfMines = new JTextField(""+mf.mineCount);
+		tfMines = new JTextField(""+minesLeft);
 		tfMines.setHorizontalAlignment(JTextField.CENTER);
 		tfMines.setEditable(false);
 		
@@ -249,51 +250,27 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			if(mf.mines[source.x][source.y] == 0) {
 				revealButton(source);
 				boolean[] f = mf.checkSurrounding(source.x, source.y);
-				//if(f[0])
-					//revealZeros(mineButtons[source.x - 1][source.y - 1]);
 				if(f[1])
 					revealZeros(mineButtons[source.x - 1][source.y]);
-				
-			//	if(f[2])
-				//	revealZeros(mineButtons[source.x - 1][source.y + 1]);
-				
 				if(f[3])
 					revealZeros(mineButtons[source.x][source.y - 1]);
 				if(f[4])
 					revealZeros(mineButtons[source.x][source.y + 1]);
-			//	if(f[5])
-				//	revealZeros(mineButtons[source.x + 1][source.y - 1]);
 				if(f[6])
 					revealZeros(mineButtons[source.x + 1][source.y]);
-				//if(f[7])
-					//revealZeros(mineButtons[source.x + 1][source.y + 1]);
-				
-			} else if(mf.mines[source.x][source.y] == 9){
+			} 
+			else if(mf.mines[source.x][source.y] == 9){
+				revealButton(source);
+				for(int i = 0; i < mf.mineCount; i++){
+					revealButton(mineButtons[mf.minePos[i][0]][mf.minePos[i][1]]);
+				}
+				JOptionPane.showMessageDialog(this, "You lost");
+				timer.stop();
+			}
+			else
+			{
 				revealButton(source);
 			}
-			else{
-				//boolean[] f = mf.checkSurrounding(source.x, source.y);
-			//	if(f[0])
-				//	revealButton(mineButtons[source.x - 1][source.y - 1]);
-				//if(f[1])
-					//revealButton(mineButtons[source.x - 1][source.y]);
-				
-			//	if(f[2])
-				//	revealButton(mineButtons[source.x - 1][source.y + 1]);
-				
-			//	if(f[3])
-			//		revealButton(mineButtons[source.x][source.y - 1]);
-			//	if(f[4])
-			//		revealButton(mineButtons[source.x][source.y + 1]);
-			//	if(f[5])
-				//	revealButton(mineButtons[source.x + 1][source.y - 1]);
-		//		if(f[6])
-		//			revealButton(mineButtons[source.x + 1][source.y]);
-				//if(f[7])
-					//revealButton(mineButtons[source.x + 1][source.y + 1]);
-				revealButton(source);
-			}
-			System.out.println("Something was revealed");
 		}
 	}
 	public void revealButton(MineButton mb) {
@@ -321,7 +298,6 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		} 
 	}
 	public void playSound(MineButton mb) {
-		System.out.println(mb.getIcon().toString());
 		if(mb.getIcon().toString().contains("tile")) {
 			if(mf.mines[mb.x][mb.y] != 9) {
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -354,14 +330,13 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 							pl.play();
 							
 						} catch (JavaLayerException jle) {
-							// TODO Auto-generated catch block
 							jle.printStackTrace();
 						}
 						
 					}
 				});
-				mf.mineCount--;
-				tfMines.setText("" + mf.mineCount);
+				minesLeft--;
+				tfMines.setText("" + minesLeft);
 			}
 		}
 	}
@@ -387,16 +362,14 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 
 		boolean isMine = true;
 		if(firstMove) {
-			System.out.println("frist!");
 			firstMove = false;
 			while(isMine){
 				if(mf.mines[mb.x][mb.y] == 9){
 					mf.generateMines();
 					mf.generateNumbers();
-					System.out.println("New board generated as first click blew up");
+			//		System.out.println("New board generated as first click blew up");
 					mf.display();
 				} else {
-				//	System.out.println
 					isMine = false;
 				}
 				
@@ -404,7 +377,6 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		}
 		playSound(mb);
 		revealZeros(mb);
-		//revealButton(mb);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -70,6 +71,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		pack();
 		setResizable(false);
 		setVisible(true);
+		centerWindow(this);
 	}
 	public JPanel setUpStats() {
 		JPanel pStats = new JPanel();
@@ -112,10 +114,13 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		
 		JMenuItem miNewGame = new JMenuItem("New Game");
 		miNewGame.setMnemonic(KeyEvent.VK_N);
+		miNewGame.addActionListener(this);
 		JMenuItem miSettings = new JMenuItem("Settings");
 		miSettings.setMnemonic(KeyEvent.VK_E);
+		miSettings.addActionListener(this);
 		JMenuItem miStats = new JMenuItem("Statistics");
 		miStats.setMnemonic(KeyEvent.VK_S);
+		miStats.addActionListener(this);
 		JMenuItem miThemes = new JMenuItem("Themes");
 		miThemes.setMnemonic(KeyEvent.VK_T);
 		miThemes.addActionListener(this);
@@ -140,8 +145,10 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		JMenuItem miTutorial = new JMenuItem("Tutorial");
 		miTutorial.setMnemonic(KeyEvent.VK_T);
+		miTutorial.addActionListener(this);
 		JMenuItem miRules = new JMenuItem("Rules");
 		miRules.setMnemonic(KeyEvent.VK_R);
+		miRules.addActionListener(this);
 		JMenuItem miAbout = new JMenuItem("About");
 		miAbout.addActionListener(this);
 		miAbout.setMnemonic(KeyEvent.VK_A);
@@ -154,7 +161,12 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		
 		return menuBar;
 	}
-	
+	public void centerWindow(JFrame jf) {
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		int x = (screen.width / 2) - (jf.getWidth() / 2);
+		int y = (screen.height/2) - (jf.getHeight() / 2);
+		jf.setBounds(x,y, jf.getWidth(), jf.getHeight());
+	}
 	public JPanel setUpMines() {
 		pMines = new JPanel();
 		pMines.setMinimumSize(new Dimension(25 * mf.boardWidth,25 * mf.boardHeight));
@@ -211,7 +223,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		jfAbout.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		jfAbout.pack();
 		jfAbout.setVisible(true);
-
+		centerWindow(jfAbout);
 	}
 	
 	public void quitButtonAction() {
@@ -231,7 +243,6 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		});
 		dQuit.pack();
 		dQuit.setVisible(true);
-		
 		int result = ((Integer)opQuit.getValue()).intValue();
 		if(result == JOptionPane.YES_OPTION){
 			System.exit(0);
@@ -240,11 +251,16 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		}
 	}
 	
+	public void newButtonAction() {
+		
+	}
+	
 	public void imagesMissing() {
 		JOptionPane.showMessageDialog(this, "There are images missing from the directory. Please redownload the application");
 		System.exit(0);
 		
 	}
+	
 	public void revealZeros(MineButton source){
 		if(source.getIcon().toString().contains("tile")){
 			if(mf.mines[source.x][source.y] == 0) {
@@ -368,7 +384,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 					mf.generateMines();
 					mf.generateNumbers();
 			//		System.out.println("New board generated as first click blew up");
-					mf.display();
+					//mf.display();
 				} else {
 					isMine = false;
 				}
@@ -392,12 +408,33 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		
 		if(arg0.getSource().getClass() == JMenuItem.class){
 			JMenuItem miToRead = (JMenuItem)arg0.getSource();
-			if(miToRead.getText().equals("Quit")) {
+			String selection = miToRead.getText();
+			
+			if(selection.equals("Quit")) {
 				quitButtonAction();
-			} else if(miToRead.getText().equals("Themes")) {
+			} else if(selection.equals("New Game")) {
+				newButtonAction();
+			} else if(selection.equals("Settings")) {
+				SettingsWindow settings = new SettingsWindow(this);
+				settings.display();
+				centerWindow(settings);
+			} else if(selection.equals("Statistics")) {
+				StatisticsWindow statistics = new StatisticsWindow(this);
+				statistics.display();
+				centerWindow(statistics);
+			} else if(selection.equals("Themes")) {
 				ThemesWindow themes = new ThemesWindow(this);
 				themes.display();
-			} else if(miToRead.getText().equals("About")) {
+				centerWindow(themes);
+			} else if(selection.equals("Rules")) {
+				RulesWindow rules = new RulesWindow(this);
+				rules.display();
+				centerWindow(rules);
+			} else if(selection.equals("Tutorial")) {
+				TutorialWindow tutorial = new TutorialWindow(this);
+				tutorial.display();
+				centerWindow(tutorial);
+			} else if(selection.equals("About")) {
 				aboutWindow();
 			}
 		}

@@ -100,7 +100,6 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		lInfo.setPreferredSize(new Dimension(25 * mf.boardWidth,50));
 		lInfo.setLineWrap(true);
 		lInfo.setEditable(false);
-		lInfo.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
 		pInfo.add(lInfo);
 		
@@ -252,7 +251,48 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	
 	public void newButtonAction() {
+		JOptionPane.showMessageDialog(this, "new");
+		mf = new MineField();
+    	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
+    	mf.generateMines();
+    	mf.generateNumbers();
+    	minesLeft = mf.mineCount;
+    	mf.display();
+    	firstClick = true;
+    	firstMove = true;
+    	time = 0;
+		pMines.removeAll();
+		pMines.setMinimumSize(new Dimension(25 * mf.boardWidth,25 * mf.boardHeight));
+		pMines.setMaximumSize(new Dimension(25 * mf.boardWidth, 25 * mf.boardHeight));
 		
+		pMines.setLayout(new GridLayout(mf.boardHeight,mf.boardWidth));
+		pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		ImageIcon icon = new ImageIcon();
+		try{
+			URL uTiles = getClass().getResource("res/images/" + currentTheme + "/tile.png");
+			if(uTiles != null) {
+				icon = new ImageIcon(uTiles, "A tile");
+			} else {
+				imagesMissing();
+			}
+		for(int i = 0; i < mf.boardWidth; i++) {
+			for(int j = 0; j < mf.boardHeight; j++) {
+				MineButton mine = new MineButton(icon);
+				mine.setContentAreaFilled(true);
+				mine.setPreferredSize(new Dimension(25,25));
+				mineButtons[i][j] = mine;
+				mineButtons[i][j].addMouseListener(this);
+				mineButtons[i][j].x = i;
+				mineButtons[i][j].y = j;
+				pMines.add(mineButtons[i][j]);
+			
+			}
+		}
+		} catch (NullPointerException npe) {
+			imagesMissing();
+		} 
+		
+		pack();
 	}
 	
 	public void imagesMissing() {

@@ -23,9 +23,9 @@ public class MineField {
 	public MineField(int height, int width, int numberOfMines) {
 		boardHeight = height;
 		boardWidth = width;
+		mineCount = numberOfMines;
 		mines = new int[boardHeight][boardWidth];
 		minePos = new int[mineCount][2];
-		mineCount = numberOfMines;
         for(int i = 0; i < boardHeight; i++) {
             for(int j= 0 ; j < boardWidth; j++) {
                  mines[i][j] = 0;

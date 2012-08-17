@@ -1,4 +1,4 @@
-<project name="YAJSM" default ="run" basedir=".">
+<project name="YAJSM" default ="dist" basedir=".">
     <description>
         Yet Another Java Swing Minesweeper
     </description>
@@ -12,7 +12,7 @@
     </target>
 
     <target name="compile" depends="init" description="compiles">
-         <javac srcdir="${src}" destdir="${build}"/>
+         <javac includeantruntime="false" includes="*.ser *.java" srcdir="${src}" destdir="${build}"/>
      </target>
 
     <target name="dist" depends="compile" description="builds a distribution">
@@ -21,7 +21,8 @@
             <manifest>
                     <attribute name="Main-Class" value="YAJSM"/>
             </manifest>
-            <fileset dir="src" includes="res/" excludes="*.psd"/>
+            <fileset dir="src" includes="res/" excludes="**/*.psd **/*.wav"/>
+            <fileset dir="src" includes="javazoom/jl/decoder/*ser" />
         </jar>    
     </target>
     

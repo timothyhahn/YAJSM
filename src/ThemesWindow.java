@@ -13,14 +13,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 class ThemesWindow extends JFrame implements ActionListener {
-//	String currentTheme = "default";
 
 	GameWindow gw = null;
 	public ThemesWindow(GameWindow gw) {
 		this.gw = gw;
 	}
 	public void display() {
-		
 		JRadioButton rbDefault = new JRadioButton("Default");
 		JRadioButton rbDark = new JRadioButton("Dark");
 		JRadioButton rbUnicorn = new JRadioButton("Unicorn");
@@ -65,14 +63,16 @@ class ThemesWindow extends JFrame implements ActionListener {
 					gw.imagesMissing();
 				}
 			gw.pMines.removeAll();
-			for(int i = 0; i < gw.mineWidth; i++) {
-				for(int j = 0; j < gw.mineHeight; j++) {
-					JButton mine = new JButton(icon);
+			for(int i = 0; i < gw.mf.boardWidth; i++) {
+				for(int j = 0; j < gw.mf.boardHeight; j++) {
+					MineButton mine = new MineButton(icon);
 					mine.setContentAreaFilled(true);
 					mine.setPreferredSize(new Dimension(25,25));
-					gw.mines[i][j] = mine;
-					gw.mines[i][j].addMouseListener(gw);
-					gw.pMines.add(gw.mines[i][j]);
+					gw.mineButtons[i][j] = mine;
+					gw.mineButtons[i][j].addMouseListener(gw);
+					gw.mineButtons[i][j].x = i;
+					gw.mineButtons[i][j].y = j;
+					gw.pMines.add(gw.mineButtons[i][j]);
 				
 				}
 			}

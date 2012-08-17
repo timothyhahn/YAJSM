@@ -30,20 +30,27 @@ import javax.swing.Timer;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
-
 public class GameWindow extends JFrame implements MouseListener, ActionListener{
-	int mineWidth = 30;
-	int mineHeight = 16;
-    JButton mines[][] = new JButton[mineWidth][mineHeight];
+    MineButton mineButtons[][];
     JPanel pMaster = null;
     JPanel pMines = null;
     JTextField tfTime = null;
     JTextField tfMines = null;
-    long time = 0;
-    int mineCount = 10;
+    long time;
     Timer timer = null;
-    boolean first = true;
-    
+    boolean firstClick;
+    boolean firstMove;
+    MineField mf;
+    public GameWindow() {
+    	mf = new MineField();
+    	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
+    	mf.generateMines();
+    	mf.generateNumbers();
+    	mf.display();
+    	firstClick = true;
+    	firstMove = true;
+    	time = 0;
+    }
     String currentTheme = "default";
 	public void setUpLayout() {
 		setTitle("YAJSM - Yet Another Java Swing Minesweeper");
@@ -74,7 +81,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		tfTime.setHorizontalAlignment(JTextField.CENTER);
 		JLabel lMines = new JLabel("Mines");
 		lMines.setHorizontalAlignment(JLabel.CENTER);
-		tfMines = new JTextField(""+mineCount);
+		tfMines = new JTextField(""+mf.mineCount);
 		tfMines.setHorizontalAlignment(JTextField.CENTER);
 		tfMines.setEditable(false);
 		
@@ -86,8 +93,8 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	public JPanel setUpInfo() {
 		JPanel pInfo = new JPanel();
-		JTextArea lInfo = new JTextArea("Here I will say belittling little facts about your ugly mother");
-		lInfo.setPreferredSize(new Dimension(25 * mineWidth,50));
+		JTextArea lInfo = new JTextArea("Here I will say lots of things to advise/insult the player.");
+		lInfo.setPreferredSize(new Dimension(25 * mf.boardWidth,50));
 		lInfo.setLineWrap(true);
 		lInfo.setEditable(false);
 		lInfo.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -149,10 +156,10 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	
 	public JPanel setUpMines() {
 		pMines = new JPanel();
-		pMines.setMinimumSize(new Dimension(25 * mineWidth,25 * mineHeight));
-		pMines.setMaximumSize(new Dimension(25 * mineWidth, 25 * mineHeight));
+		pMines.setMinimumSize(new Dimension(25 * mf.boardWidth,25 * mf.boardHeight));
+		pMines.setMaximumSize(new Dimension(25 * mf.boardWidth, 25 * mf.boardHeight));
 		
-		pMines.setLayout(new GridLayout(mineHeight,mineWidth));
+		pMines.setLayout(new GridLayout(mf.boardHeight,mf.boardWidth));
 		pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		ImageIcon icon = null;
 		try{
@@ -163,26 +170,29 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 				imagesMissing();
 			}
 		
-		for(int i = 0; i < mineWidth; i++) {
-			for(int j = 0; j < mineHeight; j++) {
-				JButton mine = new JButton(icon);
+		for(int i = 0; i < mf.boardWidth; i++) {
+			for(int j = 0; j < mf.boardHeight; j++) {
+				MineButton mine = new MineButton(icon);
 				mine.setContentAreaFilled(true);
 				mine.setPreferredSize(new Dimension(25,25));
 				
-				mines[i][j] = mine;
-				mines[i][j].addMouseListener(this);
-				pMines.add(mines[i][j]);
+				mineButtons[i][j] = new MineButton();
+				mineButtons[i][j] = mine;
+				mineButtons[i][j].y = j;
+				mineButtons[i][j].x = i;
+				mineButtons[i][j].addMouseListener(this);
+				pMines.add(mineButtons[i][j]);
 			}
 		}
 		
 		} catch (NullPointerException npe) {
+			npe.printStackTrace();
 			imagesMissing();
 		} 
 		return pMines;
 	}
 	
 	public void startTimer() {
-
 		int speed = 1000;
 		timer = new Timer(speed, this);
 		timer.start();
@@ -234,7 +244,127 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		System.exit(0);
 		
 	}
+	public void revealZeros(MineButton source){
+		if(source.getIcon().toString().contains("tile")){
+			if(mf.mines[source.x][source.y] == 0) {
+				revealButton(source);
+				boolean[] f = mf.checkSurrounding(source.x, source.y);
+				//if(f[0])
+					//revealZeros(mineButtons[source.x - 1][source.y - 1]);
+				if(f[1])
+					revealZeros(mineButtons[source.x - 1][source.y]);
+				
+			//	if(f[2])
+				//	revealZeros(mineButtons[source.x - 1][source.y + 1]);
+				
+				if(f[3])
+					revealZeros(mineButtons[source.x][source.y - 1]);
+				if(f[4])
+					revealZeros(mineButtons[source.x][source.y + 1]);
+			//	if(f[5])
+				//	revealZeros(mineButtons[source.x + 1][source.y - 1]);
+				if(f[6])
+					revealZeros(mineButtons[source.x + 1][source.y]);
+				//if(f[7])
+					//revealZeros(mineButtons[source.x + 1][source.y + 1]);
+				
+			} else if(mf.mines[source.x][source.y] == 9){
+				revealButton(source);
+			}
+			else{
+				//boolean[] f = mf.checkSurrounding(source.x, source.y);
+			//	if(f[0])
+				//	revealButton(mineButtons[source.x - 1][source.y - 1]);
+				//if(f[1])
+					//revealButton(mineButtons[source.x - 1][source.y]);
+				
+			//	if(f[2])
+				//	revealButton(mineButtons[source.x - 1][source.y + 1]);
+				
+			//	if(f[3])
+			//		revealButton(mineButtons[source.x][source.y - 1]);
+			//	if(f[4])
+			//		revealButton(mineButtons[source.x][source.y + 1]);
+			//	if(f[5])
+				//	revealButton(mineButtons[source.x + 1][source.y - 1]);
+		//		if(f[6])
+		//			revealButton(mineButtons[source.x + 1][source.y]);
+				//if(f[7])
+					//revealButton(mineButtons[source.x + 1][source.y + 1]);
+				revealButton(source);
+			}
+			System.out.println("Something was revealed");
+		}
+	}
+	public void revealButton(MineButton mb) {
+		try{
+		    URL uFloor = null;
 
+			if(mf.mines[mb.x][mb.y] != 9) {
+				uFloor = getClass().getResource("res/images/" + currentTheme + "/floor.png");
+				if(mf.mines[mb.x][mb.y] > 0) 
+					uFloor = getClass().getResource("res/images/" + currentTheme + "/" + mf.mines[mb.x][mb.y] + ".png");
+			} else {
+				
+				uFloor = getClass().getResource("res/images/" + currentTheme + "/mine.png");
+			}
+			
+			if(uFloor != null) {
+				ImageIcon icon = new ImageIcon(uFloor, "A floor");
+				mb.setIcon(icon);
+			} else {
+				imagesMissing();
+			}
+			
+		} catch (NullPointerException npe) {
+			imagesMissing();
+		} 
+	}
+	public void playSound(MineButton mb) {
+		System.out.println(mb.getIcon().toString());
+		if(mb.getIcon().toString().contains("tile")) {
+			if(mf.mines[mb.x][mb.y] != 9) {
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void  run() {
+						try {
+							InputStream is = null;
+							if(firstClick) {
+								firstClick = false;
+								 is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/select1.mp3");
+							} else {
+								firstClick = true;
+								 is = getClass().getResourceAsStream("res/audio/"+ currentTheme + "/select2.mp3");
+							}
+							Player pl = new Player(is);
+							pl.play();
+						} catch (JavaLayerException jle) {
+							jle.printStackTrace();
+						}
+						
+					}
+				});
+				
+			} else {
+				
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void  run() {
+						try {
+							InputStream is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/explode.mp3");
+							Player pl = new Player(is);
+							pl.play();
+							
+						} catch (JavaLayerException jle) {
+							// TODO Auto-generated catch block
+							jle.printStackTrace();
+						}
+						
+					}
+				});
+				mf.mineCount--;
+				tfMines.setText("" + mf.mineCount);
+			}
+		}
+	}
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
@@ -253,65 +383,28 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	@Override
 	public void mousePressed(MouseEvent e) {
 		Object o = e.getSource();
-		JButton b = (JButton) o;
-		try{
-		    final Random randomGenerator = new Random();
-		    URL uFloor = null;
-			if(randomGenerator.nextInt(100) > 10) {
-				uFloor = getClass().getResource("res/images/" + currentTheme + "/floor.png");
-				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-					public void  run() {
-						try {
-							InputStream is = null;
-							if(first) {
-								first = false;
-								 is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/select1.mp3");
-							} else {
-								first = true;
-								 is = getClass().getResourceAsStream("res/audio/"+ currentTheme + "/select2.mp3");
-							}
-							Player pl = new Player(is);
-							pl.play();
-							
-						} catch (JavaLayerException jle) {
-							// TODO Auto-generated catch block
-							jle.printStackTrace();
-						}
-						
-					}
-				});
+		MineButton mb = (MineButton) o;
+
+		boolean isMine = true;
+		if(firstMove) {
+			System.out.println("frist!");
+			firstMove = false;
+			while(isMine){
+				if(mf.mines[mb.x][mb.y] == 9){
+					mf.generateMines();
+					mf.generateNumbers();
+					System.out.println("New board generated as first click blew up");
+					mf.display();
+				} else {
+				//	System.out.println
+					isMine = false;
+				}
 				
-			} else {
-				
-				uFloor = getClass().getResource("res/images/" + currentTheme + "/mine.png");
-				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-					public void  run() {
-						try {
-							InputStream is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/explode.mp3");
-							Player pl = new Player(is);
-							pl.play();
-							
-						} catch (JavaLayerException jle) {
-							// TODO Auto-generated catch block
-							jle.printStackTrace();
-						}
-						
-					}
-				});
-				mineCount--;
-				tfMines.setText("" + mineCount);
 			}
-			
-			if(uFloor != null) {
-				ImageIcon icon = new ImageIcon(uFloor, "A floor");
-				b.setIcon(icon);
-			} else {
-				imagesMissing();
-			}
-			
-		} catch (NullPointerException npe) {
-			imagesMissing();
-		} 
+		}
+		playSound(mb);
+		revealZeros(mb);
+		//revealButton(mb);
 	}
 
 	@Override

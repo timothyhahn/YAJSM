@@ -212,13 +212,18 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	
 	public void aboutWindow() {
 		JFrame jfAbout = new JFrame("About");
-
+		
+		JPanel pAbout = new JPanel();
 		JTextArea taAbout = new JTextArea("");
-
-		taAbout.setText("hi");
+		
+		taAbout.setText("YAJSM - Yet Another Java Swing Minesweeper\n" +
+				"Version 0.2\n" +
+				"Created by Timothy Hahn\n" +
+				"Drexel University\n");
 		taAbout.setEditable(false);
-
-		jfAbout.add(taAbout);
+		
+		pAbout.add(taAbout);
+		jfAbout.add(pAbout);
 		jfAbout.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		jfAbout.pack();
 		jfAbout.setVisible(true);
@@ -251,13 +256,14 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	
 	public void newButtonAction() {
-		JOptionPane.showMessageDialog(this, "new");
-		mf = new MineField();
+		JOptionPane.showMessageDialog(this, "For now, the new button will a MineField that is 16x16 with 40 mines (an intermediate level game).\n" +
+											"Later this will simply ask to confirm if the user wants a new game and will create a game based on the settings.");
+		mf = new MineField(16,16,40);
     	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
     	mf.generateMines();
     	mf.generateNumbers();
     	minesLeft = mf.mineCount;
-    	mf.display();
+    	//mf.display();
     	firstClick = true;
     	firstMove = true;
     	time = 0;

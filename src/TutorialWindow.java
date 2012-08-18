@@ -3,6 +3,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 class TutorialWindow extends JFrame implements ActionListener {
 
@@ -11,8 +12,9 @@ class TutorialWindow extends JFrame implements ActionListener {
 		this.gw = gw;
 	}
 	public void display() {
-		add(new JLabel("Not yet finished"));
-		
+		JPanel pTutorial = new JPanel();
+		pTutorial.add(new JLabel("Not yet finished"));
+		add(pTutorial);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		pack();
 		setVisible(true);

@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 class RulesWindow extends JFrame implements ActionListener {
 
@@ -13,8 +14,11 @@ class RulesWindow extends JFrame implements ActionListener {
 		this.gw = gw;
 	}
 	public void display() {
-		add(new JLabel("Not yet finished"));
-
+		JPanel pRules = new JPanel();
+		
+		pRules.add(new JLabel("Not yet finished"));
+		
+		add(pRules);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		pack();		
 		setVisible(true);

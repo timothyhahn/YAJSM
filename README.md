@@ -49,6 +49,7 @@ What Doesn't
 * The Settings and Statistics windows do not yet have any affects and are only laid out in a temporary fashion to show how it will look like. This will be retweaked and polished in future versions.
 * The Themes window will need to be rethought out as there are a lot of things that need to be changed every time.
 * Tutorial and Rules have not been done yet. Tutorial will probably be the last thing I work on, and it may be cut out. Rules is a very simple text area with scrolling and perhaps an index/search. I just need to write the copy for it.
+* Unicorns don't work yet and trying to play with them will cause an image missing error.
 
 NOTES
 -------------

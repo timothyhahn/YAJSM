@@ -2,11 +2,8 @@ YAJSM - Yet Another Java Swing Minesweeper
 ============
 
 Timothy Hahn
---------------
 tyh25
---------------
 Project 3.1
---------------
     
 
 Java Version
@@ -45,7 +42,7 @@ What Works
 * The Lose screen has its absolute basics added.
 
 
-What doesn't
+What Doesn't
 -------------
 * Creating a New Game will not create the new game based off of the settings. It will pop up a message explaining what will actually happen.
 * The MineField does not have right clicking (Flagging/Questioning) implemented yet. Right clicking is the same as a left click for now. Also, upon losing you can continue to play, even though the mines have been revealed.
@@ -56,3 +53,4 @@ What doesn't
 NOTES
 -------------
 * Although I didn't ask you previously, I had to switch out my homebuilt audio player for an open source 3rd party library. The reason was that my own implementation of an audio player was much to slow when reacting to an action. I will discuss with you in the future.
+* The project is available on Github: https://github.com/timothyhahn/cs338project

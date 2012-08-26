@@ -9,12 +9,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,21 +47,36 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     boolean firstClick;
     boolean firstMove;
     MineField mf;
-    public GameWindow() {
-    	mf = new MineField();
+    Settings settings;
+    Record record;
+    int flagCount;
+    ArrayList<Record> records = new ArrayList<Record>();
+    
+	public GameWindow() {
+    	settings = new Settings();
+    	record = new Record();
+    	if(settings.load() == Settings.NO_SAVE_FILE) { 
+    		settings = new Settings();
+    		settings.save();
+    		System.out.println("No settings file found - new one has been created");
+    	};
+    	
+    	loadRecords();
+    	
+    	mf = new MineField(settings.boardHeight,settings.boardWidth, settings.mineCount);
     	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
     	mf.generateMines();
     	mf.generateNumbers();
     	minesLeft = mf.mineCount;
-    	//mf.display();
     	firstClick = true;
     	firstMove = true;
     	time = 0;
+    	flagCount = 0;
     }
     String currentTheme = "default";
 	public void setUpLayout() {
 		setTitle("YAJSM - Yet Another Java Swing Minesweeper");
-		  System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Test");
+		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Test");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		pMaster = new JPanel();
 		pMaster.setLayout(new BoxLayout(pMaster,BoxLayout.Y_AXIS));
@@ -166,6 +186,12 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		int y = (screen.height/2) - (jf.getHeight() / 2);
 		jf.setBounds(x,y, jf.getWidth(), jf.getHeight());
 	}
+	public void centerWindow(JDialog jd) {
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		int x = (screen.width / 2) - (jd.getWidth() / 2);
+		int y = (screen.height/2) - (jd.getHeight() / 2);
+		jd.setBounds(x,y, jd.getWidth(), jd.getHeight());
+	}
 	public JPanel setUpMines() {
 		pMines = new JPanel();
 		pMines.setMinimumSize(new Dimension(25 * mf.boardWidth,25 * mf.boardHeight));
@@ -230,10 +256,12 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		centerWindow(jfAbout);
 	}
 	
-	public void quitButtonAction() {
+	public void quitGame() {
 		final JDialog dQuit = new JDialog(this,"Quit?", true);
 		final JOptionPane opQuit = new JOptionPane("Would you like to quit?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
 		dQuit.setContentPane(opQuit);
+		dQuit.pack();
+		centerWindow(dQuit);
 		opQuit.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent e) {
@@ -245,60 +273,107 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		            }
 			}
 		});
-		dQuit.pack();
 		dQuit.setVisible(true);
 		int result = ((Integer)opQuit.getValue()).intValue();
 		if(result == JOptionPane.YES_OPTION){
+			if(!firstMove){
+				record.setDifficulty(settings.difficultyMode);
+				record.setTime(time);
+				record.setWin(false);
+				records.add(record);
+				saveRecords();
+			}
 			System.exit(0);
 		} else{
 			dQuit.setVisible(false);
 		}
 	}
 	
-	public void newButtonAction() {
-		JOptionPane.showMessageDialog(this, "For now, the new button will a MineField that is 16x16 with 40 mines (an intermediate level game).\n" +
-											"Later this will simply ask to confirm if the user wants a new game and will create a game based on the settings.");
-		mf = new MineField(16,16,40);
-    	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
-    	mf.generateMines();
-    	mf.generateNumbers();
-    	minesLeft = mf.mineCount;
-    	//mf.display();
-    	firstClick = true;
-    	firstMove = true;
-    	time = 0;
-		pMines.removeAll();
-		pMines.setMinimumSize(new Dimension(25 * mf.boardWidth,25 * mf.boardHeight));
-		pMines.setMaximumSize(new Dimension(25 * mf.boardWidth, 25 * mf.boardHeight));
-		
-		pMines.setLayout(new GridLayout(mf.boardHeight,mf.boardWidth));
-		pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		ImageIcon icon = new ImageIcon();
-		try{
-			URL uTiles = getClass().getResource("res/images/" + currentTheme + "/tile.png");
-			if(uTiles != null) {
-				icon = new ImageIcon(uTiles, "A tile");
-			} else {
-				imagesMissing();
-			}
-		for(int i = 0; i < mf.boardWidth; i++) {
-			for(int j = 0; j < mf.boardHeight; j++) {
-				MineButton mine = new MineButton(icon);
-				mine.setContentAreaFilled(true);
-				mine.setPreferredSize(new Dimension(25,25));
-				mineButtons[i][j] = mine;
-				mineButtons[i][j].addMouseListener(this);
-				mineButtons[i][j].x = i;
-				mineButtons[i][j].y = j;
-				pMines.add(mineButtons[i][j]);
-			
-			}
+	public void newGame(boolean skipConfirm) {
+		int result = 99;
+		final JDialog dQuit = new JDialog(this,"New Game", true);
+		if(!skipConfirm){
+			final JOptionPane opQuit = new JOptionPane("Would you like to make a new game? Your current game will not be saved.", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+			dQuit.setContentPane(opQuit);
+			dQuit.pack();
+			centerWindow(dQuit);
+			opQuit.addPropertyChangeListener(new PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent e) {
+					 String prop = e.getPropertyName();
+			            if (dQuit.isVisible() 
+			             && (e.getSource() == opQuit)
+			             && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+			                dQuit.setVisible(false);
+			            }
+				}
+			});
+			dQuit.setVisible(true);
+			result = ((Integer)opQuit.getValue()).intValue();
 		}
-		} catch (NullPointerException npe) {
-			imagesMissing();
-		} 
-		
-		pack();
+		if(result == JOptionPane.YES_OPTION || skipConfirm){
+			//Save Loss
+			if(!skipConfirm ) {
+				record.setDifficulty(settings.difficultyMode);
+				record.setTime(time);
+				record.setWin(false);
+				records.add(record);
+				saveRecords();
+			}
+			
+			//Creation
+			mf = new MineField(settings.boardHeight,settings.boardWidth,settings.mineCount);
+	    	mineButtons = new MineButton[mf.boardWidth][mf.boardHeight];
+	    	mf.generateMines();
+	    	mf.generateNumbers();
+	    	minesLeft = mf.mineCount;
+	    	//mf.display();
+	    	firstClick = true;
+	    	firstMove = true;
+	    	time = 0;
+	    	timer.start();
+	    	tfTime.setText(""+time);
+	    	flagCount = 0;
+			tfMines.setText(""+minesLeft);
+			pMines.removeAll();
+			pMines.setMinimumSize(new Dimension(25 * mf.boardWidth,25 * mf.boardHeight));
+			pMines.setMaximumSize(new Dimension(25 * mf.boardWidth, 25 * mf.boardHeight));
+			
+			pMines.setLayout(new GridLayout(mf.boardHeight,mf.boardWidth));
+			pMines.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			ImageIcon icon = new ImageIcon();
+			try{
+				URL uTiles = getClass().getResource("res/images/" + currentTheme + "/tile.png");
+				if(uTiles != null) {
+					icon = new ImageIcon(uTiles, "A tile");
+				} else {
+					imagesMissing();
+				}
+			for(int i = 0; i < mf.boardWidth; i++) {
+				for(int j = 0; j < mf.boardHeight; j++) {
+					MineButton mine = new MineButton(icon);
+					mine.setContentAreaFilled(true);
+					mine.setPreferredSize(new Dimension(25,25));
+					mineButtons[i][j] = mine;
+					mineButtons[i][j].addMouseListener(this);
+					mineButtons[i][j].x = i;
+					mineButtons[i][j].y = j;
+					pMines.add(mineButtons[i][j]);
+				
+				}
+			}
+			} catch (NullPointerException npe) {
+				imagesMissing();
+			} 
+			
+			invalidate();
+			validate();
+			pack();
+			centerWindow(this);
+		} else{
+			dQuit.setVisible(false);
+		}
+	
 	}
 	
 	public void imagesMissing() {
@@ -326,13 +401,15 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 				for(int i = 0; i < mf.mineCount; i++){
 					revealButton(mineButtons[mf.minePos[i][0]][mf.minePos[i][1]]);
 				}
-				JOptionPane.showMessageDialog(this, "You lost");
+				JOptionPane.showMessageDialog(this, "You lost!");
 				timer.stop();
+				newGame(false);
 			}
 			else
 			{
 				revealButton(source);
 			}
+			
 		}
 	}
 	public void revealButton(MineButton mb) {
@@ -359,6 +436,36 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			imagesMissing();
 		} 
 	}
+	
+
+	public void checkWin() {
+		boolean win = true;
+		for(int i = 0; i < mf.boardWidth; i++) {
+			for(int j = 0; j < mf.boardHeight; j++) {
+				if(mf.mines[i][j] != 9) {
+					String mineName = mineButtons[i][j].getIcon().toString(); 
+					if(mineName.contains("tile") || mineName.contains("question")) {
+						win = false;
+						
+					}
+				}
+			}
+		}
+		if(flagCount > mf.mineCount)
+			win = false;
+		if(win) {
+			JOptionPane.showMessageDialog(this, "You won!");
+			timer.stop();
+			record.setDifficulty(settings.difficultyMode);
+			record.setTime(time);
+			record.setWin(true);
+			records.add(record);
+			saveRecords();
+			time = 0;
+			newGame(true);
+		}
+	}
+	
 	public void playSound(MineButton mb) {
 		if(mb.getIcon().toString().contains("tile")) {
 			if(mf.mines[mb.x][mb.y] != 9) {
@@ -402,6 +509,40 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			}
 		}
 	}
+	@SuppressWarnings("unchecked")
+	public void loadRecords() {
+		try{
+           FileInputStream fileIn =
+                         new FileInputStream("records.ser");
+           ObjectInputStream in = new ObjectInputStream(fileIn);
+           records = (ArrayList<Record>) in.readObject();
+           
+           in.close();
+           fileIn.close();
+       }catch(IOException i) {
+    	   System.out.println("No games found");
+           //i.printStackTrace();
+       }
+    	catch(ClassNotFoundException c){
+           System.out.println("Records class not found");
+           c.printStackTrace();
+       }
+    	
+	}
+	public void saveRecords() {
+		try {
+	         FileOutputStream fileOut =
+	         new FileOutputStream("records.ser");
+	         ObjectOutputStream out =
+	                            new ObjectOutputStream(fileOut);
+	         out.writeObject(records);
+	         out.close();
+	          fileOut.close();
+	      }catch(IOException i)
+	      {
+	          i.printStackTrace(); 
+	      }
+	}
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
@@ -421,24 +562,56 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	public void mousePressed(MouseEvent e) {
 		Object o = e.getSource();
 		MineButton mb = (MineButton) o;
+		if(e.getButton() == MouseEvent.BUTTON1) {
 
-		boolean isMine = true;
-		if(firstMove) {
-			firstMove = false;
-			while(isMine){
-				if(mf.mines[mb.x][mb.y] == 9){
-					mf.generateMines();
-					mf.generateNumbers();
-			//		System.out.println("New board generated as first click blew up");
-					//mf.display();
-				} else {
-					isMine = false;
+			boolean isMine = true;
+			if(firstMove) {
+				firstMove = false;
+				while(isMine){
+					if(mf.mines[mb.x][mb.y] == 9){
+						mf.generateMines();
+						mf.generateNumbers();
+				//		System.out.println("New board generated as first click blew up");
+						//mf.display();
+					} else {
+						isMine = false;
+					}
+					
 				}
-				
+			}
+			playSound(mb);
+			revealZeros(mb);
+		} else {
+			String mbType = mb.getIcon().toString();
+			if(mbType.contains("tile") || mbType.contains("flag") || mbType.contains("question")) {
+				try{
+				    URL uFloor = null;
+				    ImageIcon icon = null;
+					if(mbType.contains("tile")) {
+						uFloor = getClass().getResource("res/images/" + currentTheme + "/flag.png");
+						icon = new ImageIcon(uFloor, "A flag");
+						flagCount++;
+					} else if(mbType.contains("flag")) {
+						uFloor = getClass().getResource("res/images/" + currentTheme + "/question.png");
+						icon = new ImageIcon(uFloor, "A question");
+						flagCount--;
+					} else if(mbType.contains("question")){
+						uFloor = getClass().getResource("res/images/" + currentTheme + "/tile.png");
+						icon = new ImageIcon(uFloor, "A tile");
+					} 
+					
+					if(uFloor != null) {
+						mb.setIcon(icon);
+					} else {
+						imagesMissing();
+					}
+					
+				} catch (NullPointerException npe) {
+					imagesMissing();
+				} 
 			}
 		}
-		playSound(mb);
-		revealZeros(mb);
+		checkWin();
 	}
 
 	@Override
@@ -457,9 +630,9 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			String selection = miToRead.getText();
 			
 			if(selection.equals("Quit")) {
-				quitButtonAction();
+				quitGame();
 			} else if(selection.equals("New Game")) {
-				newButtonAction();
+				newGame(true);
 			} else if(selection.equals("Settings")) {
 				SettingsWindow settings = new SettingsWindow(this);
 				settings.display();
@@ -487,5 +660,5 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	
 		
 	}
-
+	
 }

@@ -6,12 +6,17 @@ public class MineField {
 	public int mineCount;
 	int mines[][];
     int minePos[][];
+    Settings s;
     
 	public MineField() {
 		//Default is "beginner" difficulty
+		s = new Settings();
 		boardHeight = 9;
 		boardWidth = 9;
 		mineCount = 10;
+		boardHeight = s.boardHeight;
+		boardWidth = s.boardWidth;
+		mineCount = s.mineCount;
 		mines = new int[boardHeight][boardWidth];
 		minePos = new int[mineCount][2];
         for(int i = 0; i < boardHeight; i++) {

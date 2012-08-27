@@ -243,7 +243,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		JTextArea taAbout = new JTextArea("");
 		
 		taAbout.setText("YAJSM - Yet Another Java Swing Minesweeper\n" +
-				"Version 0.2\n" +
+				"Version 0.5\n" +
 				"Created by Timothy Hahn\n" +
 				"Drexel University\n");
 		taAbout.setEditable(false);
@@ -403,7 +403,10 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 				}
 				JOptionPane.showMessageDialog(this, "You lost!");
 				timer.stop();
-				newGame(false);
+				if(settings.allowRetries)
+					newGame(false);
+				else
+					newGame(true);
 			}
 			else
 			{

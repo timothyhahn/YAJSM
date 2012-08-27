@@ -34,7 +34,14 @@ class ThemesWindow extends JFrame implements ActionListener {
 		
 		JPanel pThemes = new JPanel(new GridLayout(0,1));
 		
-		rbDefault.setSelected(true);
+		if(gw.currentTheme.equals("default")) {
+			rbDefault.setSelected(true);
+		} else if (gw.currentTheme.equals("dark")) {
+			rbDark.setSelected(true);
+		} else if (gw.currentTheme.equals("unicorn")) {
+			rbUnicorn.setSelected(true);
+		}
+		
 		pThemes.add(rbDefault);
 		pThemes.add(rbDark);
 		pThemes.add(rbUnicorn);

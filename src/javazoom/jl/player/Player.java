@@ -41,6 +41,24 @@ import javazoom.jl.decoder.SampleBuffer;
 // first MPEG audio frame has been decoded. 
 public class Player
 {	  	
+    public void setGain(float newGain)
+    {
+    	if (audio instanceof JavaSoundAudioDevice)
+    	{
+    	    JavaSoundAudioDevice jsAudio = (JavaSoundAudioDevice) audio;
+    	    System.out.println(jsAudio.getSourceLineInfo());
+    	    try {
+				jsAudio.createSource();
+			} catch (JavaLayerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	    jsAudio.setLineGain(newGain);
+    	}
+
+    }
+
+
 	/**
 	 * The current frame number. 
 	 */

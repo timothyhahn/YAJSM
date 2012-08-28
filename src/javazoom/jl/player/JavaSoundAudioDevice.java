@@ -27,6 +27,7 @@ package javazoom.jl.player;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
@@ -48,6 +49,16 @@ public class JavaSoundAudioDevice extends AudioDeviceBase
 	private AudioFormat		fmt = null;
 
 	private byte[]			byteBuf = new byte[4096];
+	public void setLineGain(float gain)
+	{
+	    if (source != null)
+	    {
+	        FloatControl volControl = (FloatControl) source.getControl(FloatControl.Type.MASTER_GAIN);
+	        float newGain = Math.min(Math.max(gain, volControl.getMinimum()), volControl.getMaximum());
+	        System.out.println("test");
+	        volControl.setValue(newGain);
+	    }
+	}
 
 	protected void setAudioFormat(AudioFormat fmt0)
 	{

@@ -20,31 +20,28 @@ class ThemesWindow extends JFrame implements ActionListener {
 		this.gw = gw;
 	}
 	public void display() {
-		JRadioButton rbDefault = new JRadioButton("Default");
-		JRadioButton rbDark = new JRadioButton("Dark");
-		JRadioButton rbUnicorn = new JRadioButton("Unicorn");
-		rbDefault.addActionListener(this);
-		rbDark.addActionListener(this);
-		rbUnicorn.addActionListener(this);
+		setTitle("YAJSM - Themes");
+		JButton bDefault = new JButton();
+		JButton bDark = new JButton();
+
 		
-		ButtonGroup bgThemes = new ButtonGroup();
-		bgThemes.add(rbDefault);
-		bgThemes.add(rbDark);
-		bgThemes.add(rbUnicorn);
+		URL uTitle = null;
+		uTitle = getClass().getResource("res/images/default/title.png");
+		ImageIcon icon = new ImageIcon(uTitle, "default");
+		bDefault.setIcon(icon);
 		
+		URL uDarkTitle = null;
+		uDarkTitle = getClass().getResource("res/images/dark/title.png");
+		ImageIcon darkIcon = new ImageIcon(uDarkTitle, "dark");
+		bDark.setIcon(darkIcon);
+		
+		bDefault.addActionListener(this);
+		bDark.addActionListener(this);
+
 		JPanel pThemes = new JPanel(new GridLayout(0,1));
-		
-		if(gw.currentTheme.equals("default")) {
-			rbDefault.setSelected(true);
-		} else if (gw.currentTheme.equals("dark")) {
-			rbDark.setSelected(true);
-		} else if (gw.currentTheme.equals("unicorn")) {
-			rbUnicorn.setSelected(true);
-		}
-		
-		pThemes.add(rbDefault);
-		pThemes.add(rbDark);
-		pThemes.add(rbUnicorn);
+
+		pThemes.add(bDefault);
+		pThemes.add(bDark);
 		
 		add(pThemes);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -53,14 +50,12 @@ class ThemesWindow extends JFrame implements ActionListener {
 	}
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if(arg0.getSource().getClass() == JRadioButton.class) {
-			JRadioButton rbToRead = (JRadioButton)arg0.getSource();
-			if(rbToRead.getText().equals("Default")) {
+		if(arg0.getSource().getClass() == JButton.class) {
+			JButton bToRead = (JButton)arg0.getSource();
+			if(bToRead.getIcon().toString().contains("default")) {
 				gw.currentTheme = "default";
-			} else if (rbToRead.getText().equals("Dark")){
+			}else if(bToRead.getIcon().toString().contains("dark")) {
 				gw.currentTheme = "dark";
-			} else if (rbToRead.getText().equals("Unicorn")) {
-				gw.currentTheme = "unicorn";
 			}
 			ImageIcon icon = new ImageIcon();
 			try{
@@ -90,7 +85,10 @@ class ThemesWindow extends JFrame implements ActionListener {
 			} 
 			gw.invalidate();
 			gw.validate();
+			
+			setVisible(false);
 		}
+		
 		
 	}
 }

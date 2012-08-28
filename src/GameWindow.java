@@ -17,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -50,6 +51,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     Settings settings;
     Record record;
     int flagCount;
+    JTextArea lInfo;
     ArrayList<Record> records = new ArrayList<Record>();
     
 	public GameWindow() {
@@ -87,11 +89,13 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		add(pMaster);
 		
 		startTimer();
+		setMessage();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
 		setResizable(false);
 		setVisible(true);
 		centerWindow(this);
+		//makeFakeGames();
 	}
 	public JPanel setUpStats() {
 		JPanel pStats = new JPanel();
@@ -116,11 +120,11 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	public JPanel setUpInfo() {
 		JPanel pInfo = new JPanel();
-		JTextArea lInfo = new JTextArea("Here I will say lots of things to advise/insult the player.");
+		lInfo = new JTextArea("Here I will say lots of things to advise/insult the player.");
 		lInfo.setPreferredSize(new Dimension(25 * mf.boardWidth,50));
 		lInfo.setLineWrap(true);
 		lInfo.setEditable(false);
-		
+		lInfo.setWrapStyleWord(true);
 		pInfo.add(lInfo);
 		
 		return pInfo;
@@ -290,6 +294,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	
 	public void newGame(boolean skipConfirm) {
+		setMessage();
 		int result = 99;
 		final JDialog dQuit = new JDialog(this,"New Game", true);
 		if(!skipConfirm){
@@ -498,7 +503,9 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 					public void  run() {
 						try {
 							InputStream is = getClass().getResourceAsStream("res/audio/" + currentTheme + "/explode.mp3");
+
 							Player pl = new Player(is);
+							pl.play();
 							pl.play();
 							
 						} catch (JavaLayerException jle) {
@@ -545,6 +552,57 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	      {
 	          i.printStackTrace(); 
 	      }
+	}
+	
+	public void setMessage() {
+		lInfo.setText("Hello");
+		Random generator = new Random();
+		int random = generator.nextInt(5);
+		StatisticsWindow sw = new StatisticsWindow(this);
+		sw.genStats();
+		switch(random) {
+		case 0: //Talk about your last play
+			if(records.get(records.size() - 1).isWin()) {
+				lInfo.setText("You won your last game! Keep it up!");
+			} else {
+				lInfo.setText("You lost your last game... Maybe take a break?");
+			}
+			break;
+		case 1: //Talk about how many games you've played
+			lInfo.setText("You've played " + sw.played + " games and won " + sw.won +" of them.");
+			break;
+		case 2: //If losing a lot, say there is a tutorial, if winning a lot, say you should lose more often
+			if(sw.percent > .5) {
+				lInfo.setText("You are winning the majority of your games... maybe you should try losing more?");
+			} else {
+				lInfo.setText("You lose a lot. You know there is a tutorial, right?");
+			}
+			break;
+		case 3: //Talk about themes
+			lInfo.setText("If you want to try something new without making the game harder, try out a new theme!");
+			break;
+		case 4: //Say something random
+			lInfo.setText("Well, hi there!");
+			break;
+		}
+	}
+	
+	public void makeFakeGames() {
+
+		Random randomer = new Random();
+		for(int i = 0; i < (50 + randomer.nextInt(50));i++) {
+			Record r = new Record();
+			r.setDifficulty(1 + randomer.nextInt(3));
+			boolean victory = false;
+			if(randomer.nextInt(100) > 50) {
+				victory = true;
+			}
+			r.setWin(victory);
+			
+			r.setTime(5 + randomer.nextInt(1000));
+			records.add(r);
+		}
+		saveRecords();
 	}
 	@Override
 	public void mouseClicked(MouseEvent e) {

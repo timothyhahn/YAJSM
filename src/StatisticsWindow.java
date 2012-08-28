@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -27,26 +28,20 @@ class StatisticsWindow extends JFrame implements ActionListener {
 	JScrollPane scrollPane;
 	JPanel pHistory;
 	JPanel pRadioButtons;
-	public StatisticsWindow(GameWindow gw) {
-		this.gw = gw;
-	}
-	public void display() {
-		setTitle("YAJSM - Statistics");
-		JPanel pStatistics = new JPanel();
-		GridLayout lStatistics = new GridLayout(0,2);
-		//lStatistics.setHgap(10);
-		pStatistics.setLayout(lStatistics);
+	int played = 0;
+	int won = 0;
+	float percent = 0;
+//	int winningStreak = 0;
+//	int losingStreak = 0;
+	int currentStreak = 0;
+	String streakIs = "";
+	long totalTimePlayed = 0;
+	
+	public void genStats() {
 		gw.saveRecords();
 		gw.loadRecords();
 		
-		int played = 0;
-		int won = 0;
-		float percent = 0;
-	//	int winningStreak = 0;
-	//	int losingStreak = 0;
-		int currentStreak = 0;
-		String streakIs = "";
-		long totalTimePlayed = 0;
+		
 		
 		played = gw.records.size();
 		for(int i = 0; i < gw.records.size(); i++){
@@ -93,6 +88,17 @@ class StatisticsWindow extends JFrame implements ActionListener {
 			
 		}
 		
+	}
+	public StatisticsWindow(GameWindow gw) {
+		this.gw = gw;
+	}
+	public void display() {
+		setTitle("YAJSM - Statistics");
+		JPanel pStatistics = new JPanel();
+		GridLayout lStatistics = new GridLayout(0,2);
+		//lStatistics.setHgap(10);
+		pStatistics.setLayout(lStatistics);
+		genStats();
 		JPanel pStats = new JPanel();
 		pStats.setLayout(new BoxLayout(pStats, BoxLayout.Y_AXIS));
 		Font font = new Font("Verdana", Font.BOLD, 20);
@@ -185,7 +191,7 @@ class StatisticsWindow extends JFrame implements ActionListener {
 					isWin = "Loss";
 				}
 				String date =  gw.records.get(i).getTimestamp().get(Calendar.MONTH) +"/" + gw.records.get(i).getTimestamp().get(Calendar.DAY_OF_MONTH) + "/" + gw.records.get(i).getTimestamp().get(Calendar.YEAR);
-				Object[] rData = {date, gw.records.get(i).getTime(), isWin};
+				Object[] rData = {date, formatInterval(gw.records.get(i).getTime()), isWin};
 				dataList.add(rData);
 			}
 		}
@@ -198,7 +204,15 @@ class StatisticsWindow extends JFrame implements ActionListener {
 		tHistory = new JTable(data,columnNames);
 		pack();
 	}
-	
+	 private static String formatInterval(long l)
+	    {
+		 	l = l * 1000;
+	        final long hr = TimeUnit.MILLISECONDS.toHours(l);
+	        final long min = TimeUnit.MILLISECONDS.toMinutes(l - TimeUnit.HOURS.toMillis(hr));
+	        final long sec = TimeUnit.MILLISECONDS.toSeconds(l - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+	        return String.format("%02d:%02d:%02d", hr, min, sec);
+	    }
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getSource().getClass() == JButton.class) {

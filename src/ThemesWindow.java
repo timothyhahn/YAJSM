@@ -23,7 +23,7 @@ class ThemesWindow extends JFrame implements ActionListener {
 		setTitle("YAJSM - Themes");
 		JButton bDefault = new JButton();
 		JButton bDark = new JButton();
-
+		JButton bUnicorn = new JButton();
 		
 		URL uTitle = null;
 		uTitle = getClass().getResource("res/images/default/title.png");
@@ -35,13 +35,20 @@ class ThemesWindow extends JFrame implements ActionListener {
 		ImageIcon darkIcon = new ImageIcon(uDarkTitle, "dark");
 		bDark.setIcon(darkIcon);
 		
+		URL uUnicornTitle = null;
+		uUnicornTitle = getClass().getResource("res/images/unicorn/title.png");
+		ImageIcon unicornIcon = new ImageIcon(uUnicornTitle, "unicorn");
+		bUnicorn.setIcon(unicornIcon);
+		
 		bDefault.addActionListener(this);
 		bDark.addActionListener(this);
+		bUnicorn.addActionListener(this);
 
 		JPanel pThemes = new JPanel(new GridLayout(0,1));
 
 		pThemes.add(bDefault);
 		pThemes.add(bDark);
+		pThemes.add(bUnicorn);
 		
 		add(pThemes);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -56,6 +63,8 @@ class ThemesWindow extends JFrame implements ActionListener {
 				gw.currentTheme = "default";
 			}else if(bToRead.getIcon().toString().contains("dark")) {
 				gw.currentTheme = "dark";
+			} else if (bToRead.getIcon().toString().contains("unicorn")) {
+				gw.currentTheme = "unicorn";
 			}
 			ImageIcon icon = new ImageIcon();
 			try{

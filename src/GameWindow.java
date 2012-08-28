@@ -247,7 +247,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		JTextArea taAbout = new JTextArea("");
 		
 		taAbout.setText("YAJSM - Yet Another Java Swing Minesweeper\n" +
-				"Version 0.5\n" +
+				"Version 0.8\n" +
 				"Created by Timothy Hahn\n" +
 				"Drexel University\n");
 		taAbout.setEditable(false);

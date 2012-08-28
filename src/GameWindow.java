@@ -95,7 +95,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		setResizable(false);
 		setVisible(true);
 		centerWindow(this);
-		//makeFakeGames();
+		makeFakeGames();
 	}
 	public JPanel setUpStats() {
 		JPanel pStats = new JPanel();
@@ -574,7 +574,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		case 2: //If losing a lot, say there is a tutorial, if winning a lot, say you should lose more often
 			if(sw.percent > .5) {
 				lInfo.setText("You are winning the majority of your games... maybe you should try losing more?");
-			} else {
+			} else {	
 				lInfo.setText("You lose a lot. You know there is a tutorial, right?");
 			}
 			break;
@@ -594,12 +594,12 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 			Record r = new Record();
 			r.setDifficulty(1 + randomer.nextInt(3));
 			boolean victory = false;
-			if(randomer.nextInt(100) > 50) {
+			if(randomer.nextInt(100) > 40) {
 				victory = true;
 			}
 			r.setWin(victory);
 			
-			r.setTime(5 + randomer.nextInt(1000));
+			r.setTime(5 + randomer.nextInt(3000));
 			records.add(r);
 		}
 		saveRecords();

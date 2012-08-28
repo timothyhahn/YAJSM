@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +106,7 @@ class StatisticsWindow extends JFrame implements ActionListener {
 		//test.setFont(font);
 		JLabel gamesPlayed = new JLabel("Games Played: " + played);
 		JLabel gamesWon = new JLabel("Games Won: " + won);
-		JLabel percentageWon = new JLabel("Percentage Won: " + (percent * 100) + "%");
+		JLabel percentageWon = new JLabel("Percentage Won: " + MessageFormat.format("{0,number,#.##%}", percent));
 		JLabel currentSt = new JLabel("Current Streak: " + currentStreak + " " + streakIs);
 		JLabel totalTime = new JLabel("Total Time Played: " + totalTimePlayed);
 		
@@ -123,10 +124,16 @@ class StatisticsWindow extends JFrame implements ActionListener {
 		pStats.add(totalTime);
 		
 
+		JPanel pButtons = new JPanel(new FlowLayout());
 		JButton bClose = new JButton("Close");
+		JButton bReset = new JButton("Reset");
+		pButtons.add(bClose);
+		pButtons.add(bReset);
 		pStats.add(Box.createRigidArea(new Dimension(20,280)));
-		pStats.add(bClose);
+		pStats.add(pButtons);
+	
 		bClose.addActionListener(this);
+		bReset.addActionListener(this);
 		
 		JRadioButton rbBeginner = new JRadioButton("Beginner");
 		JRadioButton rbIntermediate = new JRadioButton("Intermediate");
@@ -216,7 +223,15 @@ class StatisticsWindow extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getSource().getClass() == JButton.class) {
-			setVisible(false);
+			JButton bAction = (JButton) arg0.getSource();
+			if(bAction.getText().equals("Close"))
+				setVisible(false);
+			else {
+				gw.records = new ArrayList<Record>();
+				gw.saveRecords();
+				gw.loadRecords();
+				setVisible(false);
+			}
 		} else if (arg0.getSource().getClass() == JRadioButton.class){
 			JRadioButton rbSelected = (JRadioButton) arg0.getSource();
 			if(rbSelected.getText().equals("Beginner")) {

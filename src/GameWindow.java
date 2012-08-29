@@ -40,11 +40,13 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
     MineButton mineButtons[][];
     JPanel pMaster = null;
     JPanel pMines = null;
+    JPanel pInfo;
     JTextField tfTime = null;
     JTextField tfMines = null;
     long time;
     int minesLeft;
     Timer timer = null;
+    JMenuBar menuBar;
     boolean firstClick;
     boolean firstMove;
     MineField mf;
@@ -95,7 +97,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		setResizable(false);
 		setVisible(true);
 		centerWindow(this);
-		makeFakeGames();
+		//makeFakeGames();
 	}
 	public JPanel setUpStats() {
 		JPanel pStats = new JPanel();
@@ -119,7 +121,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 		return pStats;
 	}
 	public JPanel setUpInfo() {
-		JPanel pInfo = new JPanel();
+		pInfo = new JPanel();
 		lInfo = new JTextArea("Here I will say lots of things to advise/insult the player.");
 		lInfo.setPreferredSize(new Dimension(25 * mf.boardWidth,50));
 		lInfo.setLineWrap(true);
@@ -131,7 +133,7 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 	}
 	
 	public JMenuBar setUpMenu() {
-		JMenuBar menuBar = new JMenuBar();
+		menuBar = new JMenuBar();
 		JMenu gameMenu = new JMenu("Game");
 		gameMenu.setMnemonic(KeyEvent.VK_G);
 		

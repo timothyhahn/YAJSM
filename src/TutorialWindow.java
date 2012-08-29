@@ -102,12 +102,12 @@ class TutorialWindow extends JFrame implements ActionListener, MouseListener {
 						invalidate();
 						validate();
 					}
-					game.lInfo.setText("See how a bunch of mines were cleared? That's because you clicked on a empty spot");
+					game.lInfo.setText("See how a bunch of mines were cleared? That's because you clicked on a empty spot.");
 					nextButton.setEnabled(true);
 					nextButton.addActionListener(this);
 					break;
 				case 9:
-					game.lInfo.setText("Now take a look at the highlighted tile and the numbers surrounding it");
+					game.lInfo.setText("Now take a look at the highlighted tile and the numbers surrounding it.");
 					game.mineButtons[4][8].setEnabled(true);
 					break;
 				case 10:
@@ -117,7 +117,7 @@ class TutorialWindow extends JFrame implements ActionListener, MouseListener {
 					game.lInfo.setText("That means that all of those tiles are only touching 1 mine.");
 					break;
 				case 12:
-					game.lInfo.setText("I'm guessing that means that the tile the 1's are touching is the mine. Try right clicking it");
+					game.lInfo.setText("I'm guessing that means that the tile the 1's are touching is the mine. Try right clicking it.");
 					game.mineButtons[4][8].addActionListener(this);
 					game.mineButtons[4][8].addMouseListener(this);
 					nextButton.setEnabled(false);
@@ -128,13 +128,13 @@ class TutorialWindow extends JFrame implements ActionListener, MouseListener {
 					step = 12;
 					break;
 				case 14:
-					game.lInfo.setText("Flagging all the mines is one way to win. Another way to win is to uncover all non-mine tiles");
+					game.lInfo.setText("Flagging all the mines is one way to win. Another way to win is to uncover all non-mine tiles.");
 					break;
 				case 15:
-					game.lInfo.setText("You can also do a combination of both");
+					game.lInfo.setText("You can also do a combination of both.");
 					break;
 				case 16:
-					game.lInfo.setText("Now take a look at the numbers surrounding the remaining three highlighted tiles");
+					game.lInfo.setText("Now take a look at the numbers surrounding the remaining three highlighted tiles.");
 					game.mineButtons[0][2].setEnabled(true);
 					game.mineButtons[1][3].setEnabled(true);
 					game.mineButtons[2][4].setEnabled(true);
@@ -144,7 +144,7 @@ class TutorialWindow extends JFrame implements ActionListener, MouseListener {
 					
 					break;
 				case 18:
-					game.lInfo.setText("Also carefully observe that the other two mines also have several 1's surrounding them");
+					game.lInfo.setText("Also carefully observe that the other two mines also have several 1's surrounding them.");
 					break;
 				case 19:
 					game.lInfo.setText("Which of these tiles is safe to click? Remember, the numbers indicate how many mines they are touching");

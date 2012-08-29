@@ -654,10 +654,14 @@ public class GameWindow extends JFrame implements MouseListener, ActionListener{
 						uFloor = getClass().getResource("res/images/" + currentTheme + "/flag.png");
 						icon = new ImageIcon(uFloor, "A flag");
 						flagCount++;
+						minesLeft--;
+						tfMines.setText(minesLeft+"");
 					} else if(mbType.contains("flag")) {
 						uFloor = getClass().getResource("res/images/" + currentTheme + "/question.png");
 						icon = new ImageIcon(uFloor, "A question");
 						flagCount--;
+						minesLeft++;
+						tfMines.setText(minesLeft+"");
 					} else if(mbType.contains("question")){
 						uFloor = getClass().getResource("res/images/" + currentTheme + "/tile.png");
 						icon = new ImageIcon(uFloor, "A tile");

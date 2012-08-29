@@ -46,7 +46,8 @@ class TutorialWindow extends JFrame implements ActionListener, MouseListener {
 		game.remove(game.menuBar);
 		game.setJMenuBar(new JMenuBar());
 		game.lInfo.setText("This is the tutorial! Press the 'next' button to continue");
-		
+
+		game.tfMines.setText(3+"");
 		
 		//Have this window give hints and have a "next" button
 		nextButton = new JButton("Next");
@@ -201,6 +202,8 @@ class TutorialWindow extends JFrame implements ActionListener, MouseListener {
 							uFloor = getClass().getResource("res/images/" + game.currentTheme + "/flag.png");
 							icon = new ImageIcon(uFloor, "A flag");
 							game.flagCount++;
+							game.minesLeft--;
+							game.tfMines.setText(2+"");
 						}
 						
 						if(uFloor != null) {

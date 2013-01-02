@@ -1,10 +1,9 @@
 YAJSM - Yet Another Java Swing Minesweeper
 ============
-
+YAY!
 Timothy Hahn
 tyh25
-Project 3.1
-    
+Project 3.1    
 
 Java Version
 -------------
